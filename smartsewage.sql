@@ -22,7 +22,7 @@ create table pumping_station(
   capacity int,
   priority int,
   level int,
-  lastSwitchedOff datetime,
+  lastSwitchedOff timestamp,
   durationLastOn time,
   minTimeToEmpty time,
   status varchar(10),
@@ -36,9 +36,7 @@ create table treatment_plant_input(
   num int not null,
   PsID int,
   TpID int not null,
-  switchedOnAt datetime,
-  duration time,
-  status varchar(7),
+  switchedOnAt timestamp,
   foreign key (TpID) references treatment_plant(TpID),
   foreign key (PsID) references pumping_station(PsID),
   primary key (num,TpID)
@@ -50,4 +48,11 @@ PsID int not null,
 level int,
 time datetime,
 primary key (seqnum),
+);
+
+create table command_log(
+  seqnum int not null auto_increment,
+  PsID int not null,
+  pumpOn int,
+  primary key (seqnum)
 );

@@ -7,6 +7,7 @@ import java.net.*;
 public class SmartScheduler extends Scheduler implements Runnable{
   private TreatmentPlantData tp;
   private ArrayList<PumpingStationData> ps;
+  private ArrayList<TreatmentPlantInput> ip;
   /**
   * The username of the database to be connected to
   */
@@ -71,6 +72,13 @@ public class SmartScheduler extends Scheduler implements Runnable{
 
   public void run()
   {
-    
+    //If treaament plan is off, switch off all pumping stations
+    if(tp.getStatus().equals("OFF"))
+    {
+
+    }
+    else{ //perform scheduling
+
+    }
   }
 }
