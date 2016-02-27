@@ -5,7 +5,11 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 
-public class PumpingStationData implements SensorDataListener,RelayCommandListener{
+/**
+* The class used to store data about the the pumping station . It listens to the sensor data, relay commands and can be compared ot sort based on levels and priority
+*/
+
+public class PumpingStationData implements SensorDataListener,RelayCommandListener, Comparable<PumpingStationData>{
   private int PsID;
   private String location;
   private int priority;
@@ -20,7 +24,7 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
   private Connection connection;
 
   //The pump corresponding to the pumping station
-  private Pump pump;
+  private PumpData pump;
   //The last received command to be sent periodically in response to the sensor data
   private RelayCommand lastCommand;
   //private PumpData pump;
@@ -180,6 +184,16 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
   public void run()
   {
     update();
+  }
+
+  public int compareTo(PumpingStationData ps)
+  {
+    if(this.level==ps.level)
+    {
+      return ps.priority-this.priority;
+    }
+    else
+      return ps.level-this.level;
   }
 
   //Getter methods

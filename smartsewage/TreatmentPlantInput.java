@@ -11,9 +11,11 @@ public class TreatmentPlantInput{
   private Time duration;
   private String status;
   private Connection connection;
-  private String query="select * from treatment_plant_input where TpID=?, num=?";
+  private String query="select * from treatment_plant_input where TpID=? and num=?";
   //private String query_ps="select * from pumping_station  where PsID=?";
-  private String update_query="update treatment_plant_input set PsID=?, switchedOnAt=? where TpID=?, num=?";
+  private String update_query="update treatment_plant_input set PsID=?, switchedOnAt=? where TpID=? and num=?";
+
+  private String switch_off="update treatment_plant_input set status='OFF', PsID=NULL, switchedOnAt=NULL where TpID=? and num=?";
   //A thread that will update the db at the required rate
   private Thread updater;
   public TreatmentPlantInput(int num,int TpID,Connection conn)
@@ -101,7 +103,18 @@ public class TreatmentPlantInput{
 
   public void switchOff()
   {
-
+    if(status.equals("OFF"))
+      return;
+    status="OFF";
+    try{
+      PreparedStatement ps=connection.prepareStatement(switch_off);
+      ps.setInt(1,TpID);
+      ps.setInt(2,num);
+    }
+    catch(SQLException se)
+    {
+      se.printStackTrace();
+    }
   }
 
   public String getStatus(Time MinRunTime)

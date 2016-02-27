@@ -8,6 +8,7 @@ public class SmartScheduler extends Scheduler implements Runnable{
   private TreatmentPlantData tp;
   private ArrayList<PumpingStationData> ps;
   private ArrayList<TreatmentPlantInput> ip;
+  private PriorityQueue<PumpingStationData> queue;
   /**
   * The username of the database to be connected to
   */
@@ -41,6 +42,7 @@ public class SmartScheduler extends Scheduler implements Runnable{
     username=user;
     password=pwd;
     minRunTime=Time.valueOf("00:30:00");
+    queue=new PriorityQueue<PumpingStationData>();
     try{
       //STEP 2: Register JDBC driver
       Class.forName("com.mysql.jdbc.Driver");
@@ -75,10 +77,14 @@ public class SmartScheduler extends Scheduler implements Runnable{
     //If treaament plan is off, switch off all pumping stations
     if(tp.getStatus().equals("OFF"))
     {
-
+      for(TreatmentPlantInput tpip:ip)
+      {
+        if(!tpip.getStatus(minRunTime).equals("OFF"))
+          tpip.switchOff();
+      }
     }
     else{ //perform scheduling
-
+      
     }
   }
 }

@@ -42,7 +42,7 @@ public class PumpData{
     }
   }
 
-  public void getOpRate()
+  public int getOpRate()
   {
     return OpRate;
   }
