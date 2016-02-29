@@ -38,7 +38,7 @@ public class SensorListener extends Thread{
           break;
         data=SensorData.parse(line);
         if(data!=null)
-        {System.out.println(data.toString());
+        {//System.out.println(data.toString());
           Publisher pub=Publisher.getInstance();
           pub.publishSensorData(data,sock);
         }

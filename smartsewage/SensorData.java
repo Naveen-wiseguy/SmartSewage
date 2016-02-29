@@ -44,10 +44,10 @@ public class SensorData{
   static public SensorData parse(String line)
   {
     SensorData obj=null;
-    System.out.println("Parsing string "+line);
+    //System.out.println("Parsing string "+line);
     String[] parts=line.split("\\s+");
-    for(String s:parts)
-      System.out.println(s);
+    //for(String s:parts)
+      //System.out.println(s);
     int i=0;
     while(parts[i].equals(""))
       i++;

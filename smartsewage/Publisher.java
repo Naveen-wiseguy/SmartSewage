@@ -23,9 +23,9 @@ public class Publisher{
 
   public void addSensorDataListener(SensorDataListener list)
   {
-    System.out.println("Added sensor data listener");
+    //System.out.println("Added sensor data listener");
     sensorListeners.add(list);
-    System.out.println("The object is of type "+list.getClass().getName());
+    //System.out.println("The object is of type "+list.getClass().getName());
   }
 
   public void addRelayCommandListener(RelayCommandListener list)
@@ -36,7 +36,7 @@ public class Publisher{
 
   public void publishSensorData(SensorData data,Socket sock)
   {
-    System.out.println("Publishing data");
+    //System.out.println("Publishing data");
     for(SensorDataListener list:sensorListeners)
       list.sensorDataReceived(data,sock);
   }

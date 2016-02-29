@@ -15,7 +15,7 @@ public class TreatmentPlantInput{
   //private String query_ps="select * from pumping_station  where PsID=?";
   private String update_query="update treatment_plant_input set PsID=?, switchedOnAt=? where TpID=? and num=?";
 
-  private String switch_off="update treatment_plant_input set status='OFF', PsID=NULL, switchedOnAt=NULL where TpID=? and num=?";
+  private String switch_off="update treatment_plant_input set PsID=NULL, switchedOnAt=NULL where TpID=? and num=?";
   //A thread that will update the db at the required rate
   private Thread updater;
   public TreatmentPlantInput(int num,int TpID,Connection conn)
@@ -33,7 +33,7 @@ public class TreatmentPlantInput{
         {
           PsID = result.getInt("PsID");
           num = result.getInt("num");
-          status = result.getString("status");
+          status = "OFF";
           switchedOnAt = result.getTimestamp("switchedOnAt");
         }
         else{
@@ -49,18 +49,13 @@ public class TreatmentPlantInput{
       System.out.println("Connection does  not exist");
     }
   }
-  public void update_TPip(final PumpingStationData PSD, Socket sock)
+  public void update_TPip(final PumpingStationData PSD)
   {
 
     int new_pump_id = PSD.getPsID();
     if(new_pump_id != PsID)
     {
-      updater=new Thread(new Runnable(){
-        public void run(){
           update(PSD);
-        }
-      });
-      updater.start();
     }
     else
     {
@@ -110,6 +105,7 @@ public class TreatmentPlantInput{
       PreparedStatement ps=connection.prepareStatement(switch_off);
       ps.setInt(1,TpID);
       ps.setInt(2,num);
+      ps.execute();
     }
     catch(SQLException se)
     {
@@ -120,7 +116,11 @@ public class TreatmentPlantInput{
   public String getStatus(Time MinRunTime)
   {
     duration=new Time(System.currentTimeMillis()-switchedOnAt.getTime());
-    if(duration.getTime()>=MinRunTime.getTime())
+    if(status.equals("OFF"))
+    {
+      return status;
+    }
+    else if(duration.getTime()>=MinRunTime.getTime())
     {
       status="UNLOCK";
     }
@@ -132,7 +132,15 @@ public class TreatmentPlantInput{
 
   public Time getDuration()
   {
-    duration=new Time(System.currentTimeMillis()-switchedOnAt.getTime());
+    if(switchedOnAt==null)
+      duration=new Time(0);
+    else
+      duration=new Time(System.currentTimeMillis()-switchedOnAt.getTime());
     return duration;
+  }
+
+  public int getPsID()
+  {
+    return PsID;
   }
 }

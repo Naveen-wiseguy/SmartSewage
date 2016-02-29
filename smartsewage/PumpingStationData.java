@@ -60,6 +60,9 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
           status=result.getString("status");
           int pumpId=result.getInt("PumpID");
           pump=new PumpData(pumpId,connection);
+          lastCommand=new RelayCommand((byte)PsID);
+          byte[] outputs={0,0,0,0};
+          lastCommand.setOutputs(outputs);
         }
         else{
           System.out.println("Incorrect ID");
@@ -70,6 +73,7 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
         se.printStackTrace();
       }
       Publisher.getInstance().addSensorDataListener(this);
+      Publisher.getInstance().addRelayCommandListener(this);
     }
     else{
         System.out.println("Connection does not exist");
@@ -99,6 +103,7 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
   {
     if(command.getId()==PsID)
     {
+      System.out.println("Received command for ID:"+PsID);
       dispatcher=new Thread(new Runnable(){
         public void run(){
           PumpingStationData.this.dispatch(command);
@@ -112,14 +117,17 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
   {
     //Calculate min time to empty
     minTimeToEmpty=new Time(((level*capacity/5)/pump.getOpRate())*1000);
-    if(status.equals("OFF")){
-      if((minTimeToEmpty.getTime()>=minRunTime.getTime())&&System.currentTimeMillis()-lastSwitchedOff.getTime()>=durationLastOn.getTime())
+    if(!status.equals("ON")){
+      if((minTimeToEmpty.getTime()>=minRunTime.getTime())&&System.currentTimeMillis()-lastSwitchedOff.getTime()>=durationLastOn.getTime()/5)
       {
         status="AVAILABLE";
       }
+      else{
+        status="OFF";
+      }
     }
       try{
-        System.out.println("Level = "+level);
+        //System.out.println("Level = "+level);
         PreparedStatement ps=connection.prepareStatement(query_update_sensor);
         ps.setInt(1,level);
         ps.setTime(2,minTimeToEmpty);
@@ -136,7 +144,11 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
 
   public void dispatch(RelayCommand command)
   {
+    if(sock==null)
+      return;
     try{
+      lastCommand=command;
+      System.out.println("Sending command to PS :"+PsID+"  "+command.toString());
       //Sending command to the board
       PrintWriter out=new PrintWriter(sock.getOutputStream(),true);
       out.println(command.toString());
@@ -145,23 +157,25 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
       if(command.getOutput(0)==1){
         if(!status.equals("ON"))
         {
+          System.out.println("Switched ON pump at PS:"+PsID);
           status="ON";
           switchedOnAt=new Timestamp(System.currentTimeMillis());
         }
       }
       else{
-        if(status.equals("ON"));
+        if(status.equals("ON"))
         {
+          System.out.println("Switched OFF pump at PS:"+PsID);
           status="OFF";
           lastSwitchedOff=new Timestamp(System.currentTimeMillis());
           durationLastOn=new Time(lastSwitchedOff.getTime()-switchedOnAt.getTime());
         }
       }
-      if(prev!=status) //if status has changed, update database
+      if(!prev.equals(status)) //if status has changed, update database
       {
         //update the database
         try{
-          System.out.println("Level = "+level);
+          //System.out.println("Level = "+level);
           PreparedStatement ps=connection.prepareStatement(query_update_relay);
           ps.setTime(1,durationLastOn);
           ps.setTimestamp(2,lastSwitchedOff);
@@ -224,11 +238,15 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
 
   public Time getDurationLastOn()
   {
+    if(durationLastOn==null)
+      return new Time(0);
     return durationLastOn;
   }
 
   public Time getMinTimeToEmpty()
   {
+    if(minTimeToEmpty==null)
+      return new Time(0);
     return minTimeToEmpty;
   }
 
@@ -242,10 +260,10 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
     return status;
   }
 
-  /*public PumpData getPump()
+  public PumpData getPump()
   {
     return pump;
-  }*/
+  }
 
   /**
   * Static method used to get and generate all the pumping stations belonging to a given treatment plant

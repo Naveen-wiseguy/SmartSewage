@@ -5,8 +5,8 @@ import java.net.*;
 
 public class PumpData{
   private int PumpID;
-  private Time MaxRunTime;
-  private int OpRate;
+  private Time maxRunTime;
+  private int opRate;
   private Connection connection;
 
   private String query="select * from pump where PumpID=?";
@@ -23,10 +23,10 @@ public class PumpData{
             ResultSet result=ps.executeQuery();
                 if(result.next())
                 {
-              MaxRunTime=result.getTime("MaxRunTime");
-              OpRate=result.getInt("OpRate");
-              System.out.println(MaxRunTime + " MaxRunTime");
-              System.out.println(OpRate + " OutputRate");
+              maxRunTime=result.getTime("MaxRunTime");
+              opRate=result.getInt("OpRate");
+              System.out.println(maxRunTime + " MaxRunTime");
+              System.out.println(opRate + " OutputRate");
             }
                 else{
                   System.out.println("Incorrect ID");
@@ -44,7 +44,12 @@ public class PumpData{
 
   public int getOpRate()
   {
-    return OpRate;
+    return opRate;
+  }
+
+  public Time getMaxRunTime()
+  {
+    return maxRunTime;
   }
 
 

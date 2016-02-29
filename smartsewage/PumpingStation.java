@@ -66,10 +66,21 @@ public class PumpingStation implements Runnable{
   public void run()
   {
     System.out.println("[Pumping Station "+id+"]: Started Level - "+level+" Sensor output - "+getInputs());
+    Thread t=new Thread(new Runnable(){
+      public void run()
+      {
+        readSocket();
+      }
+    });
+    t.start();
     while(!Thread.currentThread().isInterrupted()){
       level+=rand.nextInt(5)+1;
       if(pump_on)
+      {
         level-=(rand.nextInt(10)+1);
+        System.out.println("[Pumping station "+id+"]:Pump running");
+      }
+
       if(level>100)
         level=100;
       else if(level<0)
@@ -82,11 +93,11 @@ public class PumpingStation implements Runnable{
       if(alarm)
         System.out.println("[Pumping station "+id+"]: Alarm raised");
       try{
-        sock.setSoTimeout(1000);
+        //sock.setSoTimeout(1000);
         PrintWriter out=new PrintWriter(sock.getOutputStream(),true);
         out.println(data.toString());
         Thread.sleep(delay*1000);
-        BufferedReader reader=new BufferedReader(new InputStreamReader(sock.getInputStream()));
+        /*BufferedReader reader=new BufferedReader(new InputStreamReader(sock.getInputStream()));
         String command=reader.readLine();
         byte[] outputs=RelayCommand.parseString(command);
         if(outputs!=null)
@@ -95,7 +106,7 @@ public class PumpingStation implements Runnable{
             pump_on=true;
           else
             pump_on=false;
-        }
+        }*/
       }
       catch(InterruptedException ex)
       {
@@ -111,6 +122,36 @@ public class PumpingStation implements Runnable{
         System.out.println(ex.getMessage());
       }
 
+    }
+  }
+
+  public void readSocket()
+  {
+    while(true)
+    {
+      try{
+        System.out.println("Listening for command for PS: "+id);
+        sock.setSoTimeout(1000);
+        BufferedReader reader=new BufferedReader(new InputStreamReader(sock.getInputStream()));
+        String command=reader.readLine();
+        byte[] outputs=RelayCommand.parseString(command);
+        if(outputs!=null)
+        {
+          System.out.println("Received a command for PS :"+id);
+          if(outputs[0]==1)
+            pump_on=true;
+          else
+            pump_on=false;
+        }
+      }
+      catch(SocketTimeoutException ex)
+      {
+
+      }
+      catch(IOException ex)
+      {
+        ex.printStackTrace();
+      }
     }
   }
 

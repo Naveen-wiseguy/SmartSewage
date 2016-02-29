@@ -17,7 +17,7 @@ create table pump(
 create table pumping_station(
   PsID int not null,
   PumpID int not null,
-  TpID int not null
+  TpID int not null,
   location text,
   capacity int,
   priority int,
@@ -47,7 +47,7 @@ seqnum int not null auto_increment,
 PsID int not null,
 level int,
 time datetime,
-primary key (seqnum),
+primary key (seqnum)
 );
 
 create table command_log(

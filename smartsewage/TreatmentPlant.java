@@ -44,7 +44,7 @@ public class TreatmentPlant extends Thread{
       StringBuilder data=new StringBuilder();
       data.append(id);
       data.append(" 000 ");
-      data.append(getInputs());
+      data.append((char)getInputs());
       System.out.println("[STP]: Level - "+level);
       if(alarm)
         System.out.println("[STP]: Alarm raised");
@@ -103,6 +103,7 @@ public class TreatmentPlant extends Thread{
       input=(byte)(input|8);
       alarm=true;
     }
+    System.out.println("Input :"+input);
     return input;
   }
 

@@ -58,7 +58,10 @@ public class TreatmentPlantData implements SensorDataListener,Runnable{
       }
       //update the db if there is a change
       if(old!=level)
+      {
+        updater=new Thread(this);
         updater.start();
+      }
     }
   }
 
