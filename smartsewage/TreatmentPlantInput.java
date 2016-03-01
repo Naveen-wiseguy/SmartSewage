@@ -49,19 +49,19 @@ public class TreatmentPlantInput{
       System.out.println("Connection does  not exist");
     }
   }
-  public void update_TPip(final PumpingStationData PSD)
+  public void update_TPip(PumpingStationData PSD)
   {
 
-    int new_pump_id = PSD.getPsID();
-    if(new_pump_id != PsID)
-    {
+    /*int new_pump_id = PSD.getPsID();
+    if(status.equals("OFF")||new_pump_id != PsID)
+    {*/
           update(PSD);
-    }
+    /*}
     else
     {
       System.out.println("No new pumping station request");
     }
-
+*/
 
   }
 
@@ -76,7 +76,7 @@ public class TreatmentPlantInput{
     Time switched_on_at_1 = sdf.format(last_switched_offat_1) - sdf.format(dur_Lon) ;
     System.out.println(switched_on_at_1);
     */
-    if(PSD.getPsID()!=PsID){
+    if(PSD.getPsID()!=PsID||status.equals("OFF")){
       PsID=PSD.getPsID();
       switchedOnAt=new Timestamp(System.currentTimeMillis());
       duration=Time.valueOf("00:00:00");
@@ -101,6 +101,7 @@ public class TreatmentPlantInput{
     if(status.equals("OFF"))
       return;
     status="OFF";
+    System.out.println("Output "+num+" has been switched OFF");
     try{
       PreparedStatement ps=connection.prepareStatement(switch_off);
       ps.setInt(1,TpID);
@@ -127,6 +128,7 @@ public class TreatmentPlantInput{
     else{
       status="LOCK";
     }
+    //System.out.println("Status of PS :"+PsID+" = "+status+" at duration "+duration.getTime()/1000);
     return status;
   }
 
@@ -142,5 +144,10 @@ public class TreatmentPlantInput{
   public int getPsID()
   {
     return PsID;
+  }
+
+  public int getNum()
+  {
+    return num;
   }
 }

@@ -43,6 +43,7 @@ public class Publisher{
 
   public void publishRelayCommand(RelayCommand command)
   {
+    //System.out.println("Publishing command for ID:"+command.getId()+" "+command.toString());
     for(RelayCommandListener list:commandListeners)
       list.relayCommandReceived(command);
   }

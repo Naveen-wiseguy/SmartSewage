@@ -95,11 +95,11 @@ public class TreatmentPlant extends Thread{
     alarm=false;
     if(level>20)
       input=(byte)(input|1);
-    if(level>45)
+    if(level>40)
       input=(byte)(input|2);
-    if(level>70)
+    if(level>60)
       input=(byte)(input|4);
-    if(level>95){
+    if(level>80){
       input=(byte)(input|8);
       alarm=true;
     }
@@ -115,6 +115,11 @@ public class TreatmentPlant extends Thread{
       if(ps.isPumpOn())
         incoming++;
     }
+  }
+
+  public void setLevel(int level)
+  {
+    this.level=level;
   }
 
 }

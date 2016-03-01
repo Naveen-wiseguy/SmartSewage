@@ -99,6 +99,7 @@ public class SmartSewageServer{
 
     final SmartScheduler sch=new SmartScheduler(Integer.parseInt(args[3]),args[0],args[1],args[2],Long.parseLong(args[4]));
     SensorDataLogger logger=new SensorDataLogger(args[0],args[1],args[2]);
+    CommandLogger cmdlogger=new CommandLogger(args[0],args[1],args[2]);
     Thread t=new Thread(new Runnable(){
       @Override
       public void run(){

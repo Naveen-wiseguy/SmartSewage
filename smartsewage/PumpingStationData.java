@@ -30,7 +30,7 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
   //private PumpData pump;
   private Socket sock;
   //A thread that will update the db at the required rate
-  private Thread updater,dispatcher;
+  private Thread updater;
 
   private String query="select * from pumping_station where PsID=?";
 
@@ -82,9 +82,10 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
 
   public void sensorDataReceived(SensorData data,Socket sock)
   {
-    this.sock=sock;
+
     if(data.getId()==PsID)
     {
+      this.sock=sock;
       int old=level;
       level=data.getLevel();
       if(old!=level){
@@ -104,7 +105,7 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
     if(command.getId()==PsID)
     {
       System.out.println("Received command for ID:"+PsID);
-      dispatcher=new Thread(new Runnable(){
+      Thread dispatcher=new Thread(new Runnable(){
         public void run(){
           PumpingStationData.this.dispatch(command);
         }
@@ -139,7 +140,7 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
       {
         se.printStackTrace();
       }
-      dispatch(lastCommand);
+      //dispatch(lastCommand);
   }
 
   public void dispatch(RelayCommand command)
@@ -148,7 +149,7 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
       return;
     try{
       lastCommand=command;
-      System.out.println("Sending command to PS :"+PsID+"  "+command.toString());
+      //System.out.println("Sending command to PS :"+PsID+"  "+command.toString());
       //Sending command to the board
       PrintWriter out=new PrintWriter(sock.getOutputStream(),true);
       out.println(command.toString());
@@ -169,10 +170,9 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
           status="OFF";
           lastSwitchedOff=new Timestamp(System.currentTimeMillis());
           durationLastOn=new Time(lastSwitchedOff.getTime()-switchedOnAt.getTime());
+          //System.out.println("PS :"+PsID+" has been ON for "+durationLastOn);
         }
       }
-      if(!prev.equals(status)) //if status has changed, update database
-      {
         //update the database
         try{
           //System.out.println("Level = "+level);
@@ -187,7 +187,6 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
         {
           se.printStackTrace();
         }
-      }
     }
     catch(IOException ex)
     {

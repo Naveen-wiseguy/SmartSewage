@@ -23,10 +23,11 @@ public class PumpData{
             ResultSet result=ps.executeQuery();
                 if(result.next())
                 {
-              maxRunTime=result.getTime("MaxRunTime");
+              int max=result.getInt("MaxRunTime");
+              maxRunTime=new Time(max*1000);
               opRate=result.getInt("OpRate");
-              System.out.println(maxRunTime + " MaxRunTime");
-              System.out.println(opRate + " OutputRate");
+              //System.out.println(maxRunTime + " MaxRunTime");
+              //System.out.println(opRate + " OutputRate");
             }
                 else{
                   System.out.println("Incorrect ID");

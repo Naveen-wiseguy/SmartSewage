@@ -9,7 +9,7 @@ create table treatment_plant(
 
 create table pump(
   PumpID int not null,
-  MaxRunTime time,
+  MaxRunTime int,
   OpRate int,
   primary key (PumpID)
 );
@@ -53,6 +53,7 @@ primary key (seqnum)
 create table command_log(
   seqnum int not null auto_increment,
   PsID int not null,
-  pumpOn int,
+  pumpStatus int,
+  time datetime,
   primary key (seqnum)
 );

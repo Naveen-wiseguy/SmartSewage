@@ -74,10 +74,11 @@ public class PumpingStation implements Runnable{
     });
     t.start();
     while(!Thread.currentThread().isInterrupted()){
-      level+=rand.nextInt(5)+1;
-      if(pump_on)
+      if(!pump_on)
+        level+=rand.nextInt(5)+1;
+      else
       {
-        level-=(rand.nextInt(10)+1);
+        level+=(rand.nextInt(15)-10);
         System.out.println("[Pumping station "+id+"]:Pump running");
       }
 
@@ -89,7 +90,7 @@ public class PumpingStation implements Runnable{
       data.append(id);
       data.append(" 000 ");
       data.append((char)getInputs());
-      System.out.println("[Pumping station "+id+"]: Level - "+level);
+      System.out.println("[Pumping station "+id+"]: Level - "+SensorData.parse(data.toString()).getLevel());
       if(alarm)
         System.out.println("[Pumping station "+id+"]: Alarm raised");
       try{
@@ -130,14 +131,14 @@ public class PumpingStation implements Runnable{
     while(true)
     {
       try{
-        System.out.println("Listening for command for PS: "+id);
-        sock.setSoTimeout(1000);
+        //System.out.println("Listening for command for PS: "+id);
+        //sock.setSoTimeout(1000);
         BufferedReader reader=new BufferedReader(new InputStreamReader(sock.getInputStream()));
         String command=reader.readLine();
         byte[] outputs=RelayCommand.parseString(command);
         if(outputs!=null)
         {
-          System.out.println("Received a command for PS :"+id);
+          //System.out.println("Received a command for PS :"+id);
           if(outputs[0]==1)
             pump_on=true;
           else
@@ -194,15 +195,25 @@ public class PumpingStation implements Runnable{
     alarm=false;
     if(level>20)
       input=(byte)(input|1);
-    if(level>45)
+    if(level>40)
       input=(byte)(input|2);
-    if(level>70)
+    if(level>60)
       input=(byte)(input|4);
-    if(level>95){
+    if(level>80){
       input=(byte)(input|8);
       alarm=true;
     }
     return input;
+  }
+
+  public void setLevel(int level)
+  {
+    this.level=level;
+  }
+
+  public byte getId()
+  {
+    return id;
   }
 
 }

@@ -50,7 +50,8 @@ public class SmartScheduler extends Scheduler implements Runnable{
     connectionString=conn;
     username=user;
     password=pwd;
-    minRunTime=Time.valueOf("00:05:00");
+    minRunTime=new Time(60000);
+    System.out.println("Min run time :"+minRunTime.getTime()/1000);
     queue=new PriorityQueue<PumpingStationData>();
     this.schedInterval=schedInterval;
     try{
@@ -97,18 +98,23 @@ public class SmartScheduler extends Scheduler implements Runnable{
       //If treaament plan is off, switch off all pumping stations
       if(tp.getStatus().equals("OFF"))
       {
+        System.out.println("Treatment plant is OFF");
         for(TreatmentPlantInput tpip:ip)
         {
+          System.out.println("Treatment plant input : "+tpip.getNum()+" having "+tpip.getPsID());
           if(!tpip.getStatus(minRunTime).equals("OFF")){
-            tpip.switchOff();
             RelayCommand cmd=new RelayCommand((byte)tpip.getPsID());
             byte[] outputs={0,0,0,0};
             cmd.setOutputs(outputs);
             Publisher.getInstance().publishRelayCommand(cmd);
+            tpip.switchOff();
+            System.out.println("Switching OFF TP input :"+tpip.getNum()+"PSID: "+tpip.getPsID()+" command sent :"+cmd.toString());
           }
         }
       }
       else{ //perform scheduling
+
+        System.out.println("Teratment plant ON");
         queue.clear();
         for(PumpingStationData station:ps)
         {
@@ -121,14 +127,20 @@ public class SmartScheduler extends Scheduler implements Runnable{
           if(tpip.getStatus(minRunTime).equals("OFF"))
             continue;
           PumpingStationData station=getPumpingStation(tpip.getPsID());
-          if(tpip.getDuration().getTime()>station.getPump().getMaxRunTime().getTime()|| station.getMinTimeToEmpty().getTime()<schedInterval)
+          System.out.println("Duration: "+tpip.getDuration().getTime()+" Max run time :"+(long)station.getPump().getMaxRunTime().getTime()+ " Min time to empty :"+station.getMinTimeToEmpty().getTime());
+          if(tpip.getStatus(minRunTime).equals("UNLOCK"))
           {
-            tpip.switchOff();
-            RelayCommand cmd=new RelayCommand((byte)tpip.getPsID()); //Creating command to switch off
-            byte[] outputs={0,0,0,0};
-            cmd.setOutputs(outputs);
-            Publisher.getInstance().publishRelayCommand(cmd); //Send the command to switch off
+            if(tpip.getDuration().getTime()>(long)station.getPump().getMaxRunTime().getTime()|| station.getMinTimeToEmpty().getTime()<schedInterval)
+            {
+              System.out.println("Switching OFF due to excess time :"+tpip.getPsID());
+              tpip.switchOff();
+              RelayCommand cmd=new RelayCommand((byte)station.getPsID()); //Creating command to switch off
+              byte[] outputs={0,0,0,0};
+              cmd.setOutputs(outputs);
+              Publisher.getInstance().publishRelayCommand(cmd); //Send the command to switch off
+            }
           }
+
         }
         //Reassigning the OFF inputs and UNLOCKed inputs
         if(queue.size()>0)
@@ -137,8 +149,11 @@ public class SmartScheduler extends Scheduler implements Runnable{
           {
             if(tpip.getStatus(minRunTime).equals("OFF")&&queue.size()>0) // Try reassigning
             {
-              tpip.update_TPip(queue.poll());
-              RelayCommand cmd=new RelayCommand((byte)tpip.getPsID());
+              PumpingStationData psToBeOn=queue.poll();
+              System.out.println("Assigning to OFF input :"+psToBeOn.getPsID());
+              ////////////ERROR LIES HERE I THINK////////////////////////
+              tpip.update_TPip(psToBeOn);
+              RelayCommand cmd=new RelayCommand((byte)psToBeOn.getPsID());
               byte[] outputs={1,0,0,0};
               cmd.setOutputs(outputs);
               Publisher.getInstance().publishRelayCommand(cmd);
@@ -149,18 +164,20 @@ public class SmartScheduler extends Scheduler implements Runnable{
               PumpingStationData newps=queue.peek();
               if(newps.getLevel()>oldps.getLevel()) //Replace the pumping station
               {
+                System.out.println("Reassigning input from "+oldps.getPsID()+" to "+newps.getPsID());
                 //Turn OFF the already running pump
                 tpip.switchOff();
-                RelayCommand cmd=new RelayCommand((byte)tpip.getPsID()); //Creating command to switch off
+                RelayCommand cmd=new RelayCommand((byte)oldps.getPsID()); //Creating command to switch off
                 byte[] outputs={0,0,0,0};
                 cmd.setOutputs(outputs);
                 Publisher.getInstance().publishRelayCommand(cmd); //Send the command to switch off
                 //Turn ON the new pump
-                tpip.update_TPip(queue.poll());
-                cmd=new RelayCommand((byte)newps.getPsID()); //Command to switch ON the pumping station
+                tpip.update_TPip(newps);
+                RelayCommand newcmd=new RelayCommand((byte)newps.getPsID()); //Command to switch ON the pumping station
                 byte[] newoutputs={1,0,0,0};
-                cmd.setOutputs(newoutputs);
-                Publisher.getInstance().publishRelayCommand(cmd); //Sendign the command
+                newcmd.setOutputs(newoutputs);
+                Publisher.getInstance().publishRelayCommand(newcmd); //Sendign the command
+                queue.remove(newps);
               }
             }
           }
