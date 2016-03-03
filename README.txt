@@ -19,3 +19,6 @@ sudo java -cp ".:smartsewage/mysql-connector-java-5.0.8-bin.jar" smartsewage.Sma
 
 for running a sample client:
 java ServerTest localhost.
+
+for testing :
+./tester.sh testcase-7.txt | java smartsewage.SewageSimulator localhost 5

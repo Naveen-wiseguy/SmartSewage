@@ -57,7 +57,7 @@ public class SensorData{
       try{
         byte first=Byte.parseByte(parts[i]);
         byte second=(byte)parts[i+2].charAt(0);
-        obj=parse(first,second);
+        obj=parse(first,(byte)~second);
   }
   catch(NumberFormatException ex)
   {

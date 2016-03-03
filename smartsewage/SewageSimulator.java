@@ -58,6 +58,8 @@ public class SewageSimulator{
     System.out.println("Do you want to set initial levels ?[yes/no]");
     Scanner s=new Scanner(System.in);
     String reply=s.nextLine();
+    System.out.println("Do you want to make use of manual entry mode ?[yes/no]");
+    String reply2=s.nextLine();
     try{
       stp=new TreatmentPlant(num+1,new Socket(ip,195));
       stp.setDelay(delay);
@@ -74,26 +76,36 @@ public class SewageSimulator{
       stp=null;
     }
     stations=new PumpingStation[num];
-    for(PumpingStation ps:stations)
+    for(int i=0;i<stations.length;i++)
     {
       try{
-        ps=new PumpingStation(new Socket(ip,195));
+        stations[i]=new PumpingStation(new Socket(ip,195));
+        System.out.println("Pumping station created");
         if(stp!=null)
-          stp.addPumpingStation(ps);
-        ps.setDelay(delay);
+          stp.addPumpingStation(stations[i]);
+        stations[i].setDelay(delay);
         if(reply.equals("yes"))
         {
-          System.out.println("Enter level for Ps "+ps.getId()+" :");
-          ps.setLevel(s.nextInt());
+          System.out.println("Enter level for Ps "+stations[i].getId()+" :");
+          stations[i].setLevel(s.nextInt());
         }
-        ps.startSim();
+        if(reply2.equals("yes"))
+          stations[i].setManual(true);
       }
       catch(IOException ex)
       {
-        System.out.println(ex.getMessage());
-        ps=null;
+        System.out.println("Exception while creating a pumping station"+ex.getMessage());
+        stations[i]=null;
       }
     }
+    for(PumpingStation ps:stations)
+    {
+      if(ps!=null)
+        ps.startSim();
+      else
+        System.out.println("Pumping station is null");
+    }
+
   }
 
   public void stop()

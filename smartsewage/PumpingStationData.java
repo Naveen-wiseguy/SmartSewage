@@ -203,7 +203,12 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
   {
     if(this.level==ps.level)
     {
-      return ps.priority-this.priority;
+       if(ps.priority==this.priority)
+       {
+         return (int)(ps.minTimeToEmpty.getTime()-this.minTimeToEmpty.getTime());
+       }
+       else
+        return ps.priority-this.priority;
     }
     else
       return ps.level-this.level;

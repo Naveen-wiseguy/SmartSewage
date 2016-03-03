@@ -66,10 +66,13 @@ public class SensorDataLogger implements SensorDataListener{
     if(!connected)
       return;
     try{
-      String sql="insert into sensor_log(PsID,level,time) values(?,?,NOW())";
+      String sql="insert into sensor_log(PsID,level1,level2,level3,level4,time) values(?,?,?,?,?,NOW())";
       PreparedStatement ps=connection.prepareStatement(sql);
       ps.setInt(1,data.getId());
-      ps.setInt(2,data.getLevel());
+      ps.setInt(2,(int)data.getInput(0));
+      ps.setInt(3,(int)data.getInput(1));
+      ps.setInt(4,(int)data.getInput(2));
+      ps.setInt(5,(int)data.getInput(3));
       ps.execute();
     }
     catch(SQLException se)

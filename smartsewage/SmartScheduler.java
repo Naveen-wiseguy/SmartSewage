@@ -50,7 +50,7 @@ public class SmartScheduler extends Scheduler implements Runnable{
     connectionString=conn;
     username=user;
     password=pwd;
-    minRunTime=new Time(60000);
+    minRunTime=new Time(30000);
     System.out.println("Min run time :"+minRunTime.getTime()/1000);
     queue=new PriorityQueue<PumpingStationData>();
     this.schedInterval=schedInterval;

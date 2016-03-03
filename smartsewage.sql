@@ -45,7 +45,10 @@ create table treatment_plant_input(
 create table sensor_log(
 seqnum int not null auto_increment,
 PsID int not null,
-level int,
+level1 int,
+level2 int,
+level3 int,
+level4 int,
 time datetime,
 primary key (seqnum)
 );

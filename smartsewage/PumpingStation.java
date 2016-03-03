@@ -38,7 +38,10 @@ public class PumpingStation implements Runnable{
   *Alarm in case of very high overflow
   */
   private boolean alarm;
-
+  /**
+  *Manual operation involves the user input of the level at each step
+  */
+private boolean manual;
   public PumpingStation() throws IOException
   {
     id=next;
@@ -49,6 +52,7 @@ public class PumpingStation implements Runnable{
     rand=new Random();
     delay=20;
     alarm=false;
+    manual=false;
   }
 
   public PumpingStation(Socket sock)
@@ -58,9 +62,24 @@ public class PumpingStation implements Runnable{
     this.sock=sock;
     level=0;
     pump_on=false;
+    manual=false;
     rand=new Random();
     delay=20;
     alarm=false;
+  }
+
+  private synchronized int readInput()
+  {
+    try{
+        Scanner s=new Scanner(System.in);
+        System.out.println("Input the level at pumiping station "+id+" :");
+        return s.nextInt();
+    }
+    catch(Exception ex)
+    {
+      ex.printStackTrace();
+    }
+    return 0;
   }
 
   public void run()
@@ -74,13 +93,23 @@ public class PumpingStation implements Runnable{
     });
     t.start();
     while(!Thread.currentThread().isInterrupted()){
-      if(!pump_on)
-        level+=rand.nextInt(5)+1;
+      if(manual) //user inputs the level
+      {
+        if(pump_on)
+          System.out.println("[Pumping station "+id+"]:Pump running");
+        level=readInput();
+      }
       else
       {
-        level+=(rand.nextInt(15)-10);
-        System.out.println("[Pumping station "+id+"]:Pump running");
+        if(!pump_on)
+          level+=rand.nextInt(5)+1;
+        else
+        {
+          level+=(rand.nextInt(15)-10);
+          System.out.println("[Pumping station "+id+"]:Pump running");
+        }
       }
+
 
       if(level>100)
         level=100;
@@ -89,7 +118,7 @@ public class PumpingStation implements Runnable{
       StringBuilder data=new StringBuilder();
       data.append(id);
       data.append(" 000 ");
-      data.append((char)getInputs());
+      data.append((char)(~getInputs()));
       System.out.println("[Pumping station "+id+"]: Level - "+SensorData.parse(data.toString()).getLevel());
       if(alarm)
         System.out.println("[Pumping station "+id+"]: Alarm raised");
@@ -214,6 +243,11 @@ public class PumpingStation implements Runnable{
   public byte getId()
   {
     return id;
+  }
+
+  public void setManual(boolean manual)
+  {
+    this.manual=manual;
   }
 
 }
