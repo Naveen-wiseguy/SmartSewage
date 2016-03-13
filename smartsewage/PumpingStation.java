@@ -220,7 +220,7 @@ private boolean manual;
 
   private byte getInputs()
   {
-    byte input=0x70;
+    byte input=0x40;
     alarm=false;
     if(level>20)
       input=(byte)(input|1);

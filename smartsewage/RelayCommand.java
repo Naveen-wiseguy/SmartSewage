@@ -40,7 +40,7 @@ public class RelayCommand{
 
   static public byte[] parseString(String cmd)
   {
-    byte[] outputs=new byte[4];
+    byte[] outputs=new byte[2];
     if(!cmd.contains("RELAY"))
       return null;
     try{
