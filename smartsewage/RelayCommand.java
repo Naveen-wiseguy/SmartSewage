@@ -9,7 +9,7 @@ public class RelayCommand{
   public RelayCommand(byte id)
   {
     this.id=(byte)id;
-    outputs=new byte[4];
+    outputs=new byte[2];
     for(byte out:outputs)
       out=0;
   }
@@ -24,7 +24,7 @@ public class RelayCommand{
 
   public void setOutputs(byte[] outs)
   {
-    for(int i=0;i<4;i++)
+    for(int i=0;i<outputs.length;i++)
       outputs[i]=outs[i];
   }
 
@@ -44,7 +44,7 @@ public class RelayCommand{
     if(!cmd.contains("RELAY"))
       return null;
     try{
-    for(int i=0,j=5;i<4;i++,j++)
+    for(int i=0,j=5;i<outputs.length;i++,j++)
     {
       outputs[i]=Byte.parseByte(Character.toString(cmd.charAt(j)));
     }
