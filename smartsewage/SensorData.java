@@ -25,8 +25,8 @@ public class SensorData{
     SensorData obj=new SensorData();
     obj.id=first;
     byte x=1;
-    obj.inputs=new byte[4];
-    for(int i=0;i<4;i++,x<<=1)
+    obj.inputs=new byte[6];
+    for(int i=0;i<6;i++,x<<=1)
     {
       if((x&second)==0)
         obj.inputs[i]=0;
@@ -58,6 +58,32 @@ public class SensorData{
         byte first=Byte.parseByte(parts[i]);
         byte second=(byte)parts[i+2].charAt(0);
         obj=parse(first,second);
+  }
+  catch(NumberFormatException ex)
+  {
+    System.out.println("Number format error");
+    System.out.println(ex.getMessage());
+  }
+    return obj;
+  }
+
+  static public SensorData parseComplement(String line)
+  {
+    SensorData obj=null;
+    //System.out.println("Parsing string "+line);
+    String[] parts=line.split("\\s+");
+    //for(String s:parts)
+      //System.out.println(s);
+    int i=0;
+    while(parts[i].equals(""))
+      i++;
+    if(parts.length-i<=1)
+      return obj;
+      //First string represents id
+      try{
+        byte first=Byte.parseByte(parts[i]);
+        byte second=(byte)parts[i+2].charAt(0);
+        obj=parse(first,(byte)~second);
   }
   catch(NumberFormatException ex)
   {
