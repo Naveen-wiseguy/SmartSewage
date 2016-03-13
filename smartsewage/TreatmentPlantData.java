@@ -51,6 +51,7 @@ public class TreatmentPlantData implements SensorDataListener,Runnable{
       //Setting status based on level
       if(level>=4)
       {
+        System.out.println("Alarm raised in Treatment plant "+TpID);
         status="OFF";
       }
       else{

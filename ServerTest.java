@@ -16,6 +16,8 @@ public class ServerTest{
       OutputStream output=sock.getOutputStream();
       PrintWriter writer=new PrintWriter(output,true);
       byte[] bytes={0x12,0x00};
+      System.out.println("2 OVERLD "+(char)0x80);
+      writer.println("2 OVERLD "+(char)0x80);
       writer.println(scanner.nextLine());
       writer.close();
       output.close();

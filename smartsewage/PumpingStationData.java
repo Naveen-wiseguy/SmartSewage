@@ -88,6 +88,8 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
       this.sock=sock;
       int old=level;
       level=data.getLevel();
+      if(level>=4)
+        System.out.println("Alarm raised for PS "+PsID);
       if(old!=level){
         updater=new Thread(new Runnable(){
           public void run()
@@ -104,7 +106,7 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
   {
     if(command.getId()==PsID)
     {
-      System.out.println("Received command for ID:"+PsID);
+      //System.out.println("Received command for ID:"+PsID);
       Thread dispatcher=new Thread(new Runnable(){
         public void run(){
           PumpingStationData.this.dispatch(command);
@@ -148,10 +150,10 @@ public class PumpingStationData implements SensorDataListener,RelayCommandListen
     if(sock==null)
       return;
     try{
+      PrintWriter out=new PrintWriter(sock.getOutputStream(),true);
       lastCommand=command;
       //System.out.println("Sending command to PS :"+PsID+"  "+command.toString());
       //Sending command to the board
-      PrintWriter out=new PrintWriter(sock.getOutputStream(),true);
       out.println(command.toString());
       //Updating status locally
       String prev=status;

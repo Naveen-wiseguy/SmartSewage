@@ -118,7 +118,7 @@ private boolean manual;
       StringBuilder data=new StringBuilder();
       data.append(id);
       data.append(" 000 ");
-      data.append((char)(~getInputs()));
+      data.append((char)(getInputs()));
       System.out.println("[Pumping station "+id+"]: Level - "+SensorData.parse(data.toString()).getLevel());
       if(alarm)
         System.out.println("[Pumping station "+id+"]: Alarm raised");

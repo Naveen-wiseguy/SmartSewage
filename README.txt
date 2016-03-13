@@ -22,3 +22,6 @@ java ServerTest localhost.
 
 for testing :
 ./tester.sh testcase-7.txt | java smartsewage.SewageSimulator localhost 5
+
+for csv file conversion:
+java -cp ".:smartsewage/mysql-connector-java-5.0.8-bin.jar" CSVLogger jdbc:mysql://localhost/smartsewage root 31011995
